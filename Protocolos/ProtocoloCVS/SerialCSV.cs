@@ -3,31 +3,31 @@ using UnityEngine;
 
 public class SerialCSV : MonoBehaviour
 {
-    SerialPort puerto = new SerialPort("COM3", 9600);
+    SerialPort port = new SerialPort("COM3", 9600);
 
     void Start()
     {
-        puerto.Open();
-        puerto.ReadTimeout = 100;
+        port.Open();
+        port.ReadTimeout = 100;
     }
 
     void Update()
     {
-        if (puerto.IsOpen)
+        if (port.IsOpen)
         {
             try
             {
-                string datos = puerto.ReadLine();
+                string data = port.ReadLine();
 
-                string[] valores = datos.Split(',');
+                string[] values = data.Split(',');
 
-                if (valores.Length == 5)
+                if (values.Length == 5)
                 {
-                    int b1 = int.Parse(valores[0]);
-                    int b2 = int.Parse(valores[1]);
-                    int b3 = int.Parse(valores[2]);
-                    int b4 = int.Parse(valores[3]);
-                    int pot = int.Parse(valores[4]);
+                    int b1 = int.Parse(values[0]);
+                    int b2 = int.Parse(values[1]);
+                    int b3 = int.Parse(values[2]);
+                    int b4 = int.Parse(values[3]);
+                    int pot = int.Parse(values[4]);
 
                     Debug.Log(
                         "B1: " + b1 +
@@ -47,9 +47,9 @@ public class SerialCSV : MonoBehaviour
 
     void OnApplicationQuit()
     {
-        if (puerto.IsOpen)
+        if (port.IsOpen)
         {
-            puerto.Close();
+            port.Close();
         }
     }
 }
