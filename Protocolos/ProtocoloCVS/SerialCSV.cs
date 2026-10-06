@@ -7,8 +7,17 @@ public class SerialCSV : MonoBehaviour
 
     void Start()
     {
-        port.Open();
-        port.ReadTimeout = 100;
+        try
+        {
+            port.Open();
+            port.ReadTimeout = 100;
+
+            Debug.Log("Serial port opened successfully.");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("Could not open serial port: " + e.Message);
+        }
     }
 
     void Update()
@@ -19,28 +28,57 @@ public class SerialCSV : MonoBehaviour
             {
                 string data = port.ReadLine();
 
+                Debug.Log("Received: " + data);
+
                 string[] values = data.Split(',');
 
-                if (values.Length == 5)
+                if (values.Length == 6)
                 {
                     int b1 = int.Parse(values[0]);
                     int b2 = int.Parse(values[1]);
                     int b3 = int.Parse(values[2]);
                     int b4 = int.Parse(values[3]);
                     int pot = int.Parse(values[4]);
+                    int checksumReceived = int.Parse(values[5]);
 
-                    Debug.Log(
-                        "B1: " + b1 +
-                        " | B2: " + b2 +
-                        " | B3: " + b3 +
-                        " | B4: " + b4 +
-                        " | Potentiometer: " + pot
+                    int checksumCalculated =
+                        b1 ^ b2 ^ b3 ^ b4 ^ pot;
+
+                    if (checksumCalculated == checksumReceived)
+                    {
+                        Debug.Log(
+                            "Correct data | " +
+                            "B1: " + b1 +
+                            " | B2: " + b2 +
+                            " | B3: " + b3 +
+                            " | B4: " + b4 +
+                            " | Potentiometer: " + pot +
+                            " | Checksum OK"
+                        );
+                    }
+                    else
+                    {
+                        Debug.LogWarning(
+                            "Integrity error | " +
+                            "Received checksum: " + checksumReceived +
+                            " | Calculated checksum: " + checksumCalculated
+                        );
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning(
+                        "Invalid number of values: " + values.Length
                     );
                 }
             }
-            catch (System.Exception)
+            catch (System.TimeoutException)
             {
                 
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("Serial error: " + e.Message);
             }
         }
     }
